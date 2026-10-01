@@ -1,0 +1,41 @@
+<div class="card h-100 shadow-sm @(IsSelected ? "border-primary border-2" : "")">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title mb-1">@School.SchoolName</h5>
+            <button class="btn btn-sm btn-link text-warning fs-5 p-0"
+                    title="Toggle favourite"
+                    @onclick="() => OnToggleFavourite.InvokeAsync(School)">
+                @(IsFavourite ? "★" : "☆")
+            </button>
+        </div>
+        <h6 class="card-subtitle mb-2 text-muted">ID: @School.SchoolId</h6>
+
+        <p class="card-text mb-1"><strong>Address:</strong> @School.Address</p>
+        <p class="card-text mb-1"><strong>Phone:</strong> @School.PhoneNo</p>
+        <p class="card-text mb-1"><strong>Email:</strong> @School.EmailAddress</p>
+        <p class="card-text mb-1"><strong>Proprietor:</strong> @School.ProprietorFullName</p>
+        <p class="card-text"><strong>Head:</strong> @School.HeadFullName</p>
+    </div>
+    <div class="card-footer bg-transparent border-0 pb-3">
+        <button class="btn btn-primary btn-sm" @onclick="() => OnSelect.InvokeAsync(School)">
+            View details
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public School School { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<School> OnSelect { get; set; }
+
+    [Parameter]
+    public EventCallback<School> OnToggleFavourite { get; set; }
+
+    [Parameter]
+    public bool IsSelected { get; set; }
+
+    [Parameter]
+    public bool IsFavourite { get; set; }
+}

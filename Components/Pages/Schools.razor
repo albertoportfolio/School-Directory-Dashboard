@@ -1,0 +1,168 @@
+@page "/"
+@page "/schools"
+@rendermode InteractiveServer
+@inject SchoolService SchoolService
+
+<PageTitle>School Directory</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="mb-0">School Directory</h1>
+    <button class="btn btn-outline-secondary" @onclick="LoadSchoolsAsync" disabled="@isLoading">
+        &#x21bb; Refresh
+    </button>
+</div>
+
+@if (error)
+{
+    <div class="alert alert-danger">
+        <p class="text-danger mb-2">Unable to retrieve school data.</p>
+        <button class="btn btn-sm btn-danger" @onclick="LoadSchoolsAsync">Try again</button>
+    </div>
+}
+else if (schools == null)
+{
+    <div class="d-flex align-items-center">
+        <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+        <p class="mb-0">Loading schools...</p>
+    </div>
+}
+else
+{
+    @* ---------- Statistics dashboard ---------- *@
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="fs-3 fw-bold">@schools.Count</div><small class="text-muted">Total schools</small>
+            </div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="fs-3 fw-bold">@FilteredSchools.Count</div><small class="text-muted">Matching search</small>
+            </div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="fs-3 fw-bold">@favouriteIds.Count</div><small class="text-muted">Favourites</small>
+            </div></div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="card text-center"><div class="card-body">
+                <div class="fs-3 fw-bold">@schools.Select(s => s.ProprietorFullName.Trim().ToLower()).Distinct().Count()</div>
+                <small class="text-muted">Unique proprietors</small>
+            </div></div>
+        </div>
+    </div>
+
+    @* ---------- Search + sort ---------- *@
+    <div class="row g-2 mb-3">
+        <div class="col-md-8">
+            <input @bind="Search"
+                   @bind:event="oninput"
+                   class="form-control"
+                   placeholder="Search school..." />
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-outline-primary w-100" @onclick="ToggleSort">
+                Sort by name: @(sortAscending ? "A → Z" : "Z → A")
+            </button>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="@(selectedSchool is null ? "col-12" : "col-lg-7")">
+            @if (FilteredSchools.Count == 0)
+            {
+                <p class="text-muted">No schools match "@Search".</p>
+            }
+            else
+            {
+                <div class="row g-3">
+                    @foreach (var school in FilteredSchools)
+                    {
+                        <div class="@(selectedSchool is null ? "col-md-6 col-xl-4" : "col-md-6")" @key="school.SchoolId">
+                            <SchoolCard School="school"
+                                        OnSelect="SelectSchool"
+                                        OnToggleFavourite="ToggleFavourite"
+                                        IsSelected="@(selectedSchool?.SchoolId == school.SchoolId)"
+                                        IsFavourite="@favouriteIds.Contains(school.SchoolId)" />
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+
+        @if (selectedSchool is not null)
+        {
+            <div class="col-lg-5 mt-3 mt-lg-0">
+                <div class="sticky-top" style="top: 1rem;">
+                    <SchoolDetails School="selectedSchool" OnClose="ClearSelection" />
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    private List<School>? schools;
+    private School? selectedSchool;
+    private bool error;
+    private bool isLoading;
+    private bool sortAscending = true;
+    private readonly HashSet<int> favouriteIds = new();
+
+    private string Search { get; set; } = string.Empty;
+
+    private List<School> FilteredSchools
+    {
+        get
+        {
+            if (schools is null) return new List<School>();
+
+            var query = schools.Where(s =>
+                string.IsNullOrWhiteSpace(Search) ||
+                s.SchoolName.Contains(Search, StringComparison.OrdinalIgnoreCase));
+
+            query = sortAscending
+                ? query.OrderBy(s => s.SchoolName, StringComparer.OrdinalIgnoreCase)
+                : query.OrderByDescending(s => s.SchoolName, StringComparer.OrdinalIgnoreCase);
+
+            return query.ToList();
+        }
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadSchoolsAsync();
+
+    private async Task LoadSchoolsAsync()
+    {
+        isLoading = true;
+        error = false;
+        schools = null;          // shows the loading message
+        selectedSchool = null;
+        StateHasChanged();
+
+        try
+        {
+            schools = await SchoolService.GetSchoolsAsync();
+        }
+        catch (Exception)        // HttpRequestException, JsonException, TaskCanceledException...
+        {
+            error = true;
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private void SelectSchool(School school) => selectedSchool = school;
+
+    private void ClearSelection() => selectedSchool = null;
+
+    private void ToggleSort() => sortAscending = !sortAscending;
+
+    private void ToggleFavourite(School school)
+    {
+        if (!favouriteIds.Remove(school.SchoolId))
+            favouriteIds.Add(school.SchoolId);
+    }
+}

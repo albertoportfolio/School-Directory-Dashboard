@@ -1,0 +1,42 @@
+@if (School is not null)
+{
+    <div class="card shadow border-primary">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+            <span>School details</span>
+            <button class="btn-close btn-close-white" aria-label="Close" @onclick="() => OnClose.InvokeAsync()"></button>
+        </div>
+        <div class="card-body">
+            <h4>@School.SchoolName</h4>
+            <dl class="row mb-0">
+                <dt class="col-sm-4">School ID</dt>
+                <dd class="col-sm-8">@School.SchoolId</dd>
+
+                <dt class="col-sm-4">School name</dt>
+                <dd class="col-sm-8">@School.SchoolName</dd>
+
+                <dt class="col-sm-4">Address</dt>
+                <dd class="col-sm-8">@School.Address</dd>
+
+                <dt class="col-sm-4">Phone</dt>
+                <dd class="col-sm-8">@School.PhoneNo</dd>
+
+                <dt class="col-sm-4">Email</dt>
+                <dd class="col-sm-8"><a href="mailto:@School.EmailAddress">@School.EmailAddress</a></dd>
+
+                <dt class="col-sm-4">Proprietor</dt>
+                <dd class="col-sm-8">@School.ProprietorFullName</dd>
+
+                <dt class="col-sm-4">Head</dt>
+                <dd class="col-sm-8">@School.HeadFullName</dd>
+            </dl>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public School? School { get; set; }
+
+    [Parameter]
+    public EventCallback OnClose { get; set; }
+}
