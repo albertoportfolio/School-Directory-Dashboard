@@ -56,13 +56,21 @@ In `appsettings.json` change `"ApiBaseUrl"` to a wrong address (e.g. `https://ed
 
 ## Screenshots
 
-| Evidence | Screenshot |
-|---|---|
+### School list loaded
 ![School List](screenshots/list.png)
+
+### Search functionality
 ![Search](screenshots/search.png)
+
+### School details view
 ![Details](screenshots/details.png)
-![loading](screenshots/loading.png)
+
+### Loading state
+![Loading](screenshots/loading.png)
+
+### Error state
 ![Error](screenshots/error.png)
+
 ## Author
 
 Alberto Peñarrubia – 84860
