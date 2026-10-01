@@ -58,12 +58,6 @@ In `appsettings.json` change `"ApiBaseUrl"` to a wrong address (e.g. `https://ed
 
 | Evidence | Screenshot |
 |---|---|
-| School list loaded | `screenshots/list.png` |
-| Search | `screenshots/search.png` |
-| School details | `screenshots/details.png` |
-| Loading state | `screenshots/loading.png` |
-| Error state | `screenshots/error.png` |
-
 ![School List](screenshots/list.png)
 ![Search](screenshots/search.png)
 ![Details](screenshots/details.png)
